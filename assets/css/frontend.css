@@ -1,0 +1,205 @@
+/* =================================================================== */
+/* Living Heritage Forms - Frontend Stylesheet                         */
+/* =================================================================== */
+
+.lhf-form-container {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 20px 30px 30px 30px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  border: 1px solid #e0e0e0;
+}
+
+/* --- Headings & Sections --- */
+.lhf-form-container h2 {
+  text-align: center;
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.lhf-form-container h3 {
+  font-size: 1.5em;
+  color: #005a31; /* Dark Green from PDF */
+  border-bottom: 2px solid #fdb813; /* Yellow from PDF */
+  padding-bottom: 10px;
+  margin-top: 30px;
+  margin-bottom: 25px;
+}
+
+.lhf-form-container h4 {
+  font-size: 1.1em;
+  color: #555;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-bottom: 1px dotted #ccc;
+  padding-bottom: 5px;
+}
+
+.lhf-form-container fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 30px 0;
+}
+
+/* --- Form Layout & Grid --- */
+.lhf-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.lhf-form-row .lhf-form-group {
+  flex: 1 1 100%;
+}
+
+.lhf-two-col .lhf-form-group {
+  flex-basis: calc(50% - 10px);
+}
+
+.lhf-three-col .lhf-form-group {
+  flex-basis: calc(33.333% - 14px);
+}
+
+.lhf-half-width {
+  max-width: 50%;
+}
+
+/* --- Form Elements (Inputs, Labels) --- */
+.lhf-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #444;
+  font-size: 0.95em;
+}
+
+.lhf-form-group label span {
+  color: #d9534f; /* Red for asterisk */
+}
+
+.lhf-form-group input[type="text"],
+.lhf-form-group input[type="email"],
+.lhf-form-group input[type="tel"],
+.lhf-form-group input[type="date"],
+.lhf-form-group input[type="password"],
+.lhf-form-group select,
+.lhf-form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 1em;
+}
+
+.lhf-form-group input:focus,
+.lhf-form-group select:focus,
+.lhf-form-group textarea:focus {
+  outline: none;
+  border-color: #fdb813;
+  box-shadow: 0 0 0 2px rgba(253, 184, 19, 0.4);
+}
+
+.lhf-form-group p {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+/* --- Radio & Checkbox Groups --- */
+.lhf-radio-group,
+.lhf-checkbox-group {
+  padding-top: 5px;
+}
+.lhf-radio-group label,
+.lhf-checkbox-group label {
+  font-weight: normal;
+  display: block;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.lhf-radio-group input,
+.lhf-checkbox-group input {
+  margin-right: 10px;
+}
+
+/* --- Helper Text & Submission Button --- */
+.lhf-required-note {
+  text-align: center;
+  font-style: italic;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.lhf-submit-btn {
+  display: inline-block;
+  width: 100%;
+  padding: 15px 30px;
+  background-color: #005a31; /* Dark Green */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.lhf-submit-btn:hover {
+  background-color: #004d2a;
+}
+
+.lhf-final-agreement label {
+  font-weight: normal;
+  line-height: 1.6;
+}
+
+/* --- Alert Messages --- */
+.lhf-alert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  max-width: 850px;
+  margin: -10px auto 20px auto;
+  box-sizing: border-box;
+}
+.lhf-alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+.lhf-alert-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+/* --- Alert Messages --- */
+.lhf-alert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  max-width: 800px; /* Match form container */
+  margin-left: auto;
+  margin-right: auto;
+}
+.lhf-alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+.lhf-alert-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}

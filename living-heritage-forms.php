@@ -1,0 +1,69 @@
+<?php
+/**
+ * Plugin Name:       Living Heritage Forms
+ * Plugin URI:        https://example.com/
+ * Description:       A custom registration form for the Living Heritage Nursery School.
+ * Version:           1.0.0
+ * Author:            Victor Ohis
+ * Author URI:        https://example.com/
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       living-heritage-forms
+ */
+
+// If this file is called directly, abort.
+if (!defined('WPINC')) {
+    die;
+}
+
+/**
+ * Define constants for the plugin.
+ */
+define('LHF_VERSION', '1.0.0');
+define('LHF_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('LHF_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+/**
+ * The code that runs during plugin activation.
+ */
+function lhf_activate_plugin()
+{
+    require_once LHF_PLUGIN_DIR . 'includes/activation.php';
+    lhf_create_database_table();
+}
+register_activation_hook(__FILE__, 'lhf_activate_plugin');
+
+
+/**
+ * Register frontend scripts and styles.
+ */
+function lhf_register_assets()
+{
+    wp_register_style(
+        'lhf-frontend-style',
+        LHF_PLUGIN_URL . 'assets/css/frontend.css',
+        [],
+        LHF_VERSION
+    );
+}
+add_action('wp_enqueue_scripts', 'lhf_register_assets');
+
+
+/**
+ * Include all necessary files.
+ */
+require_once LHF_PLUGIN_DIR . 'includes/shortcodes.php';
+require_once LHF_PLUGIN_DIR . 'includes/form-handler.php'; // <-- UNCOMMENT THIS
+require_once LHF_PLUGIN_DIR . 'admin/menu.php';
+
+
+/**
+ * Hook the form handler to admin-post.
+ * admin_post_nopriv is for non-logged-in users.
+ * admin_post is for logged-in users.
+ */
+// The 'submit_lh_registration' matches the 'action' field in our form.
+add_action('admin_post_nopriv_submit_lh_registration', 'lhf_handle_form_submission'); // <-- ADD THIS
+add_action('admin_post_submit_lh_registration', 'lhf_handle_form_submission');       // <-- AND THIS
+
+?>
