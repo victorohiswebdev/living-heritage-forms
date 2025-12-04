@@ -1,14 +1,17 @@
 <?php
 /**
  * Plugin Name:       Living Heritage Forms
- * Plugin URI:        https://example.com/
- * Description:       A custom registration form for the Living Heritage Nursery School.
+ * Plugin URI:        https://github.com/your-username/living-heritage-forms
+ * Description:       Provides a complete registration form for Living Heritage Nursery School. Includes a shortcode for display, an admin panel for viewing submissions, and email notifications.
  * Version:           1.0.0
+ * Requires at least: 5.2
+ * Requires PHP:      7.2
  * Author:            Victor Ohis
- * Author URI:        https://example.com/
+ * Author URI:        https://your-website.com/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       living-heritage-forms
+ * Domain Path:       /languages
  */
 
 // If this file is called directly, abort.
