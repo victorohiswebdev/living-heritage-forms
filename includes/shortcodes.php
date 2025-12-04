@@ -20,6 +20,7 @@ function lhf_render_registration_form()
 
     // Enqueue the frontend stylesheet only when the shortcode is used.
     wp_enqueue_style('lhf-frontend-style');
+    wp_enqueue_script('lhf-frontend-js');
 
     ob_start();
     // Display submission status messages

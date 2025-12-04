@@ -17,6 +17,7 @@ add_action('admin_init', 'lhf_handle_row_actions'); // Action hook to handle del
  */
 function lhf_add_admin_menu()
 {
+    // This is the main menu page
     add_menu_page(
         'Form Submissions',
         'LH Forms',
@@ -25,6 +26,26 @@ function lhf_add_admin_menu()
         'lhf_render_submissions_page',
         'dashicons-feedback',
         25
+    );
+
+    // ADD THIS SUBMENU PAGE
+    add_submenu_page(
+        'lhf-submissions',              // Parent slug
+        'All Submissions',              // Page title
+        'All Submissions',              // Menu title
+        'manage_options',               // Capability
+        'lhf-submissions',              // Menu slug (same as parent to keep it the default)
+        'lhf_render_submissions_page'   // Callback
+    );
+
+    // AND ADD THIS SUBMENU PAGE for our new settings
+    add_submenu_page(
+        'lhf-submissions',              // Parent slug
+        'Settings',                     // Page title
+        'Settings',                     // Menu title
+        'manage_options',               // Capability
+        'lhf-settings',                 // Menu slug
+        'lhf_render_settings_page'      // Callback function from our new file
     );
 }
 
@@ -125,7 +146,8 @@ function lhf_render_single_submission_view($id)
                 ?>
                 <tr>
                     <th scope="row" style="text-align: left; vertical-align: top; width: 200px;">
-                        <?php echo esc_html($label); ?></th>
+                        <?php echo esc_html($label); ?>
+                    </th>
                     <td><?php echo nl2br(esc_html($value)); ?></td>
                 </tr>
             <?php endforeach; ?>

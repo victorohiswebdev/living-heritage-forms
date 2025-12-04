@@ -18,7 +18,12 @@ if (!defined('WPINC')) {
 function lhf_send_admin_notification($data)
 {
 
-    $to = get_option('admin_email'); // Sends to the site's admin email
+    $custom_email = get_option('lhf_notification_email');
+
+    // Use the custom email if it exists and is valid, otherwise fall back to the admin email
+    $to = (!empty($custom_email) && is_email($custom_email)) ? $custom_email : get_option('admin_email');
+
+
     $subject = 'New Nursery Registration Submission: ' . esc_html($data['child_first_name']) . ' ' . esc_html($data['child_surname']);
 
     $headers = ['Content-Type: text/html; charset=UTF-8'];

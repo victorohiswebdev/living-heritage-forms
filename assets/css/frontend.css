@@ -203,3 +203,18 @@
   background-color: #f8d7da;
   border-color: #f5c6cb;
 }
+
+/* --- Validation Error Styles --- */
+.lhf-form-group input.lhf-error,
+.lhf-form-group select.lhf-error,
+.lhf-form-group textarea.lhf-error {
+  border-color: #d9534f;
+  box-shadow: 0 0 5px rgba(217, 83, 79, 0.5);
+}
+
+.lhf-radio-group.lhf-error,
+.lhf-checkbox-group.lhf-error {
+  padding: 10px;
+  border: 1px solid #d9534f;
+  border-radius: 4px;
+}

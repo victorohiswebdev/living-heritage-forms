@@ -45,6 +45,15 @@ function lhf_register_assets()
         [],
         LHF_VERSION
     );
+
+    // ADD THIS SCRIPT REGISTRATION
+    wp_register_script(
+        'lhf-frontend-js',
+        LHF_PLUGIN_URL . 'assets/js/frontend.js',
+        ['jquery'], // Dependency
+        LHF_VERSION,
+        true // Load in footer
+    );
 }
 add_action('wp_enqueue_scripts', 'lhf_register_assets');
 
@@ -55,6 +64,7 @@ add_action('wp_enqueue_scripts', 'lhf_register_assets');
 require_once LHF_PLUGIN_DIR . 'includes/shortcodes.php';
 require_once LHF_PLUGIN_DIR . 'includes/form-handler.php'; // <-- UNCOMMENT THIS
 require_once LHF_PLUGIN_DIR . 'admin/menu.php';
+require_once LHF_PLUGIN_DIR . 'admin/settings-page.php';
 
 
 /**
