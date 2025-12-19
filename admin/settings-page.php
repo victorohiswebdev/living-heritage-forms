@@ -23,7 +23,7 @@ function lhf_register_settings()
         'lhf_notification_email',       // Option name
         [
             'type' => 'string',
-            'sanitize_callback' => 'sanitize_email', // Use WordPress's built-in email sanitizer
+            'sanitize_callback' => 'lhf_sanitize_email_list',
             'default' => '',
         ]
     );
@@ -62,10 +62,12 @@ function lhf_email_field_callback()
     // Get the saved value, or fall back to the site admin's email as a placeholder
     $saved_email = get_option('lhf_notification_email');
     $placeholder = get_option('admin_email');
-    $value = $saved_email ? $saved_email : $placeholder;
+    // Use the saved value directly, don't fallback in the input field itself
+    $value = $saved_email ? $saved_email : '';
 
-    echo '<input type="email" id="lhf_notification_email" name="lhf_notification_email" value="' . esc_attr($value) . '" class="regular-text" />';
-    echo '<p class="description">If left blank, notifications will be sent to the site administrator (' . esc_html($placeholder) . ').</p>';
+    echo '<input type="text" id="lhf_notification_email" name="lhf_notification_email" value="' . esc_attr($value) . '" class="regular-text" placeholder="' . esc_attr($placeholder) . '" />';
+    // THIS IS THE LINE WE ARE CHANGING
+    echo '<p class="description">Enter one or more email addresses, separated by commas. If left blank, notifications will be sent to the site administrator (' . esc_html($placeholder) . ').</p>';
 }
 
 /**
@@ -90,4 +92,32 @@ function lhf_render_settings_page()
         </form>
     </div>
     <?php
+}
+
+/**
+ * Sanitizes a comma-separated list of email addresses.
+ *
+ * @param string $input The raw string from the settings field.
+ * @return string The sanitized, comma-separated string of valid emails.
+ */
+function lhf_sanitize_email_list($input)
+{
+    // Explode the input string into an array of potential emails
+    $emails = explode(',', $input);
+
+    // An array to hold only the valid, sanitized emails
+    $clean_emails = [];
+
+    foreach ($emails as $email) {
+        // Trim whitespace from the email
+        $trimmed_email = trim($email);
+
+        // If it's a valid email address, add it to our clean array
+        if (is_email($trimmed_email)) {
+            $clean_emails[] = $trimmed_email;
+        }
+    }
+
+    // Implode the clean array back into a properly formatted, comma-separated string
+    return implode(', ', $clean_emails);
 }
