@@ -18,6 +18,8 @@ if (!class_exists('WP_List_Table')) {
 class LHF_Submissions_List_Table extends WP_List_Table
 {
 
+
+
     /**
      * Prepare the items for the table to process
      */
@@ -26,32 +28,50 @@ class LHF_Submissions_List_Table extends WP_List_Table
         global $wpdb;
         $table_name = $wpdb->prefix . 'lh_form_submissions';
 
+        // Define our columns, hidden columns, and sortable columns
         $columns = $this->get_columns();
         $hidden = $this->get_hidden_columns();
         $sortable = $this->get_sortable_columns();
-
         $this->_column_headers = [$columns, $hidden, $sortable];
 
+        // Pagination parameters
         $per_page = 20;
         $current_page = $this->get_pagenum();
         $offset = ($current_page - 1) * $per_page;
 
-        // Order by logic
+        // Order by logic (sorting)
         $orderby = isset($_GET['orderby']) ? sanitize_sql_orderby($_GET['orderby']) : 'submission_date';
-        $order = isset($_GET['order']) ? strtoupper($_GET['order']) : 'DESC';
+        $order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'DESC';
 
-        // Get the total number of items
-        $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
+        // ====================================================================
+        // DYNAMIC FILTERING LOGIC STARTS HERE
+        // ====================================================================
 
-        // Get the data
+        $where_clause = '';
+        // Get the form_type from the URL, if it exists
+        $form_type = isset($_GET['form_type']) ? sanitize_key($_GET['form_type']) : '';
+
+        // If the form_type is one of our valid types, create a WHERE clause
+        if (in_array($form_type, ['registration', 'permissions'])) {
+            $where_clause = $wpdb->prepare("WHERE form_type = %s", $form_type);
+        }
+
+        // Get the total number of items, respecting the filter
+        $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $table_name $where_clause");
+
+        // Get the data from the database, respecting the filter, sorting, and pagination
         $this->items = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT id, submission_date, child_first_name, child_surname, p1_first_name, p1_surname, p1_email FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d",
+                "SELECT id, form_type, submission_date, child_first_name, child_surname, p1_first_name, p1_surname, p1_email FROM $table_name $where_clause ORDER BY $orderby $order LIMIT %d OFFSET %d",
                 $per_page,
                 $offset
             ),
             ARRAY_A
         );
+
+        // ====================================================================
+        // DYNAMIC FILTERING LOGIC ENDS HERE
+        // ====================================================================
 
         // Set pagination arguments
         $this->set_pagination_args([
@@ -151,4 +171,46 @@ class LHF_Submissions_List_Table extends WP_List_Table
     {
         return sprintf('<input type="checkbox" name="submission[]" value="%s" />', $item['id']);
     }
+
+    /**
+     * Displays the filter views (All, Registrations, Permissions).
+     */
+    protected function get_views()
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'lh_form_submissions';
+
+        $current = isset($_GET['form_type']) ? $_GET['form_type'] : '';
+
+        $total_count = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
+        $reg_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(id) FROM $table_name WHERE form_type = %s", 'registration'));
+        $perm_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(id) FROM $table_name WHERE form_type = %s", 'permissions'));
+
+        $base_url = admin_url('admin.php?page=lhf-submissions');
+
+        $views = [
+            'all' => sprintf(
+                '<a href="%s" class="%s">All <span class="count">(%d)</span></a>',
+                $base_url,
+                $current === '' ? 'current' : '',
+                $total_count
+            ),
+            'registration' => sprintf(
+                '<a href="%s" class="%s">Full Registrations <span class="count">(%d)</span></a>',
+                add_query_arg('form_type', 'registration', $base_url),
+                $current === 'registration' ? 'current' : '',
+                $reg_count
+            ),
+            'permissions' => sprintf(
+                '<a href="%s" class="%s">Permissions Forms <span class="count">(%d)</span></a>',
+                add_query_arg('form_type', 'permissions', $base_url),
+                $current === 'permissions' ? 'current' : '',
+                $perm_count
+            ),
+        ];
+
+        return $views;
+    }
+
+
 }

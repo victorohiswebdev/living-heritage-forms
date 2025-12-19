@@ -676,3 +676,188 @@ function lhf_render_registration_form()
     return ob_get_clean();
 }
 add_shortcode('living_heritage_registration_form', 'lhf_render_registration_form');
+
+
+/**
+ * Renders the standalone permissions form.
+ *
+ * @return string The HTML for the form.
+ */
+function lhf_render_permissions_form()
+{
+
+    wp_enqueue_style('lhf-frontend-style');
+    wp_enqueue_script('lhf-frontend-js');
+
+    ob_start();
+
+    // Display submission status messages
+    if (isset($_GET['submission'])) {
+        if ($_GET['submission'] === 'success') {
+            echo '<div class="lhf-alert lhf-alert-success">Thank you! The permissions have been successfully submitted.</div>';
+        } elseif ($_GET['submission'] === 'error') {
+            echo '<div class="lhf-alert lhf-alert-error">An error occurred. Please try again.</div>';
+        }
+    }
+    ?>
+    <div class="lhf-form-container">
+        <form id="lhf-permissions-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+
+            <!-- Security and identification fields -->
+            <input type="hidden" name="action" value="submit_lh_permissions">
+            <input type="hidden" name="form_type" value="permissions">
+            <?php wp_nonce_field('lhf_permissions_nonce', 'lhf_nonce'); ?>
+
+            <h2>Parental Agreements & Permissions</h2>
+            <p class="lhf-required-note">Fields marked with an <span>*</span> are required.</p>
+
+            <!-- Identifying Information -->
+            <fieldset>
+                <h3>Child & Parent Information</h3>
+                <p>Please provide the following details to identify the child this submission is for.</p>
+                <div class="lhf-form-row lhf-two-col">
+                    <div class="lhf-form-group">
+                        <label for="child_first_name">Child's First Name <span>*</span></label>
+                        <input type="text" id="child_first_name" name="child_first_name" required>
+                    </div>
+                    <div class="lhf-form-group">
+                        <label for="child_surname">Child's Surname <span>*</span></label>
+                        <input type="text" id="child_surname" name="child_surname" required>
+                    </div>
+                </div>
+                <div class="lhf-form-row lhf-two-col">
+                    <div class="lhf-form-group">
+                        <label for="p1_first_name">Parent's First Name <span>*</span></label>
+                        <input type="text" id="p1_first_name" name="p1_first_name" required>
+                    </div>
+                    <div class="lhf-form-group">
+                        <label for="p1_email">Parent's Email <span>*</span></label>
+                        <input type="email" id="p1_email" name="p1_email" required>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- =================================================================== -->
+            <!-- Parental Agreements & Permissions -->
+            <!-- =================================================================== -->
+            <fieldset>
+                <!-- (This is the exact same HTML copied from your main registration form) -->
+                <h3>Parental Agreements & Permissions</h3>
+                <div class="lhf-form-row lhf-three-col">
+                    <div class="lhf-form-group">
+                        <label>I agree to provide necessary emergency contact information <span>*</span></label>
+                        <div class="lhf-radio-group">
+                            <label><input type="radio" name="agree_emergency_contact" value="1" required> Yes</label>
+                            <label><input type="radio" name="agree_emergency_contact" value="0"> No</label>
+                        </div>
+                    </div>
+                    <div class="lhf-form-group">
+                        <label>I acknowledge and understand the nursery's policies and procedures <span>*</span></label>
+                        <div class="lhf-radio-group">
+                            <label><input type="radio" name="agree_policies" value="1" required> Yes</label>
+                            <label><input type="radio" name="agree_policies" value="0"> No</label>
+                        </div>
+                    </div>
+                    <div class="lhf-form-group">
+                        <label>I consent to my child's participation in nursery activities <span>*</span></label>
+                        <div class="lhf-radio-group">
+                            <label><input type="radio" name="agree_activities" value="1" required> Yes</label>
+                            <label><input type="radio" name="agree_activities" value="0"> No</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Permissions -->
+                <div class="lhf-form-group">
+                    <label>Permission for Photographs / Videos (Internal) <span>*</span></label>
+                    <p>Photographs and videos of your child are taken routinely for display purposes within the nursery and
+                        to record observations of your child to enable us to assess his/her development. These are shared
+                        with carers via the secure nursery management system.</p>
+                    <div class="lhf-radio-group">
+                        <label><input type="radio" name="permission_photos_internal" value="1" required> Yes</label>
+                        <label><input type="radio" name="permission_photos_internal" value="0"> No</label>
+                    </div>
+                </div>
+                <div class="lhf-form-group">
+                    <label>Permission for Photographs / Videos (social media) <span>*</span></label>
+                    <p>I give my permission for static and/or moving images to be used for: Living Heritage
+                        Nursery/Facebook/Instagram page/Social media platforms</p>
+                    <div class="lhf-radio-group">
+                        <label><input type="radio" name="permission_photos_social" value="1" required> Yes</label>
+                        <label><input type="radio" name="permission_photos_social" value="0"> No</label>
+                    </div>
+                </div>
+                <div class="lhf-form-group">
+                    <label>Permission for Photographs (Photographer) <span>*</span></label>
+                    <p>I give my permission for photographs to be taken of my child from time to time by an approved
+                        photographer for my consideration to purchase copies. All copies not purchased will be destroyed.
+                    </p>
+                    <div class="lhf-radio-group">
+                        <label><input type="radio" name="permission_photos_photographer" value="1" required> Yes</label>
+                        <label><input type="radio" name="permission_photos_photographer" value="0"> No</label>
+                    </div>
+                </div>
+                <div class="lhf-form-group">
+                    <label>Permission for Local Outings <span>*</span></label>
+                    <p>I give permission for my child to be taken on supervised visits, e.g. to local shops, local parks, or
+                        to post a letter.</p>
+                    <div class="lhf-radio-group">
+                        <label><input type="radio" name="permission_local_outings" value="1" required> Yes</label>
+                        <label><input type="radio" name="permission_local_outings" value="0"> No</label>
+                    </div>
+                </div>
+                <div class="lhf-form-group">
+                    <label>Permission for use of normal baby/childcare products <span>*</span></label>
+                    <p>I give my consent to staff at Living Heritage Nursery to use all normal baby/child care products,
+                        including washing products, cotton wool, and sun cream.</p>
+                    <div class="lhf-radio-group">
+                        <label><input type="radio" name="permission_products" value="1" required> Yes</label>
+                        <label><input type="radio" name="permission_products" value="0"> No</label>
+                    </div>
+                    <label for="permission_products_exceptions">Please list any products you do not wish us to use on your
+                        child:</label>
+                    <textarea id="permission_products_exceptions" name="permission_products_exceptions" rows="2"></textarea>
+                </div>
+                <div class="lhf-form-group">
+                    <label>Permission for sharing child's details with schools <span>*</span></label>
+                    <p>I give my consent to Living Heritage Nursery to share my child's development details with the school
+                        that he/she will be moving to from a LHN setting, in support of transition.</p>
+                    <div class="lhf-radio-group">
+                        <label><input type="radio" name="permission_share_school" value="1" required> Yes</label>
+                        <label><input type="radio" name="permission_share_school" value="0"> No</label>
+                    </div>
+                </div>
+
+                <div class="lhf-form-group">
+                    <label>
+                        <input type="checkbox" name="agree_privacy_notice" value="1" required>
+                        I have read and agree with the privacy notice <span>*</span>
+                    </label>
+                </div>
+                <div class="lhf-form-group">
+                    <label>
+                        <input type="checkbox" name="agree_terms" value="1" required>
+                        I have read and agree to the nursery's terms and conditions. <span>*</span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <h3>Submission</h3>
+                <div class="lhf-form-group lhf-final-agreement">
+                    <label>
+                        <input type="checkbox" name="confirm_accuracy" value="1" required>
+                        By clicking submit, I confirm that the information provided is accurate and complete. <span>*</span>
+                    </label>
+                </div>
+                <div class="lhf-form-group">
+                    <button type="submit" class="lhf-submit-btn">Submit Permissions</button>
+                </div>
+            </fieldset>
+
+        </form>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+// Register the new shortcode
+add_shortcode('living_heritage_permissions_form', 'lhf_render_permissions_form');

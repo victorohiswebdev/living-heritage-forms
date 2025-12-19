@@ -167,3 +167,64 @@ function lhf_handle_form_submission()
 // IMPORTANT: This hook MUST match the 'action' value in the hidden form field.
 add_action('admin_post_nopriv_submit_lh_registration', 'lhf_handle_form_submission');
 add_action('admin_post_submit_lh_registration', 'lhf_handle_form_submission');
+
+
+/**
+ * The main function to process the PERMISSIONS form submission.
+ */
+function lhf_handle_permissions_submission()
+{
+
+    // 1. Verify the nonce
+    if (!isset($_POST['lhf_nonce']) || !wp_verify_nonce($_POST['lhf_nonce'], 'lhf_permissions_nonce')) {
+        wp_die('Security check failed!', 'Error');
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'lh_form_submissions';
+
+    // 2. Define expected fields for THIS form
+    $expected_fields = [
+        'form_type',
+        'child_first_name',
+        'child_surname',
+        'p1_first_name',
+        'p1_email',
+        'agree_emergency_contact',
+        'agree_policies',
+        'agree_activities',
+        'permission_photos_internal',
+        'permission_photos_social',
+        'permission_photos_photographer',
+        'permission_local_outings',
+        'permission_products',
+        'permission_products_exceptions',
+        'permission_share_school',
+        'agree_privacy_notice',
+        'agree_terms',
+        'confirm_accuracy',
+    ];
+
+    $data = [];
+    foreach ($expected_fields as $field) {
+        $data[$field] = isset($_POST[$field]) ? sanitize_text_field($_POST[$field]) : '';
+    }
+
+    $data['submission_date'] = current_time('mysql');
+
+    // 3. Insert the data
+    $result = $wpdb->insert($table_name, $data);
+
+    // 4. Redirect
+    $redirect_url = wp_get_referer();
+    if ($result === false) {
+        $redirect_url = add_query_arg('submission', 'error', $redirect_url);
+    } else {
+        // You could create a new, separate email notification function for this if you wish
+        // lhf_send_permissions_notification( $data );
+        $redirect_url = add_query_arg('submission', 'success', $redirect_url);
+    }
+
+    wp_redirect($redirect_url);
+    exit;
+}

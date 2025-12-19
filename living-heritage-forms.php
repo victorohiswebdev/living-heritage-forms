@@ -78,5 +78,7 @@ require_once LHF_PLUGIN_DIR . 'admin/settings-page.php';
 // The 'submit_lh_registration' matches the 'action' field in our form.
 add_action('admin_post_nopriv_submit_lh_registration', 'lhf_handle_form_submission'); // <-- ADD THIS
 add_action('admin_post_submit_lh_registration', 'lhf_handle_form_submission');       // <-- AND THIS
-
+// Hook the NEW permissions form handler
+add_action('admin_post_nopriv_submit_lh_permissions', 'lhf_handle_permissions_submission');
+add_action('admin_post_submit_lh_permissions', 'lhf_handle_permissions_submission');
 ?>
