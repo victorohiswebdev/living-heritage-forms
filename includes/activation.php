@@ -9,7 +9,7 @@ if (!defined('WPINC')) {
 }
 
 /**
- * Create the custom database table for form submissions.
+ * Create/Update the custom database table for form submissions.
  */
 function lhf_create_database_table()
 {
@@ -20,14 +20,14 @@ function lhf_create_database_table()
     // SQL statement to create the table
     $sql = "CREATE TABLE $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
-        form_type varchar(50) DEFAULT 'registration' NOT NULL,  -- <-- ADD THIS LINE
+        form_type varchar(50) DEFAULT 'registration' NOT NULL,
         submission_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
         
         -- Child's Details
         child_first_name varchar(100) NOT NULL,
         child_middle_name varchar(100) DEFAULT '' NOT NULL,
         child_surname varchar(100) NOT NULL,
-        child_dob date NOT NULL,
+        child_dob date DEFAULT '0000-00-00' NOT NULL,
         child_gender varchar(10) NOT NULL,
         child_religion varchar(100) NOT NULL,
         child_nationality varchar(100) NOT NULL,
@@ -43,7 +43,7 @@ function lhf_create_database_table()
         p1_surname varchar(100) NOT NULL,
         p1_relationship varchar(100) NOT NULL,
         p1_parental_responsibility tinyint(1) NOT NULL,
-        p1_dob date NOT NULL,
+        p1_dob date DEFAULT '0000-00-00' NOT NULL,
         p1_email varchar(100) NOT NULL,
         p1_phone_home varchar(20) DEFAULT '' NOT NULL,
         p1_mobile varchar(20) NOT NULL,
@@ -61,7 +61,7 @@ function lhf_create_database_table()
         p2_surname varchar(100) NOT NULL,
         p2_relationship varchar(100) NOT NULL,
         p2_parental_responsibility tinyint(1) NOT NULL,
-        p2_dob date NOT NULL,
+        p2_dob date DEFAULT '0000-00-00' NOT NULL,
         p2_email varchar(100) NOT NULL,
         p2_phone_home varchar(20) DEFAULT '' NOT NULL,
         p2_mobile varchar(20) NOT NULL,
@@ -87,10 +87,10 @@ function lhf_create_database_table()
         pickup_password varchar(100) NOT NULL,
 
         -- Preferences & Funding
-        preferred_start_date date NOT NULL,
+        preferred_start_date date DEFAULT '0000-00-00' NOT NULL,
         preferred_session varchar(50) NOT NULL,
         additional_hours varchar(255) DEFAULT '' NOT NULL,
-        preferred_days text NOT NULL, -- Storing as serialized/JSON string
+        preferred_days text NOT NULL,
         funding_eligibility varchar(50) NOT NULL,
         
         -- Child Development
@@ -104,7 +104,7 @@ function lhf_create_database_table()
         doctor_name varchar(255) DEFAULT '' NOT NULL,
         health_visitor_name varchar(255) DEFAULT '' NOT NULL,
         health_visitor_phone varchar(20) DEFAULT '' NOT NULL,
-        immunized_against text NOT NULL, -- Storing as serialized/JSON string
+        immunized_against text NOT NULL,
         immunisations_up_to_date tinyint(1) NOT NULL,
         ongoing_medical_conditions tinyint(1) NOT NULL,
         ongoing_medical_conditions_details text DEFAULT '' NOT NULL,
@@ -135,8 +135,6 @@ function lhf_create_database_table()
         PRIMARY KEY  (id)
     ) $charset_collate;";
 
-    // We need to bring in dbDelta
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 }
-?>
