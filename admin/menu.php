@@ -85,13 +85,15 @@ function lhf_render_single_submission_view($id)
         <hr>
         <table class="form-table">
             <?php foreach ($submission as $key => $value):
-                if (empty($value) || $key === 'id')
+                // Treat the string "0" as a valid stored value — don't drop it.
+                if (!isset($value) || $value === '' || $key === 'id')
                     continue;
                 $label = ucwords(str_replace('_', ' ', $key));
                 ?>
                 <tr>
                     <th scope="row" style="text-align: left; vertical-align: top; width: 200px;">
-                        <?php echo esc_html($label); ?></th>
+                        <?php echo esc_html($label); ?>
+                    </th>
                     <td><?php echo nl2br(esc_html($value)); ?></td>
                 </tr>
             <?php endforeach; ?>

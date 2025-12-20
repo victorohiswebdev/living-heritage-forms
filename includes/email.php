@@ -56,13 +56,15 @@ function lhf_send_notification($data, $form_type)
     <hr>
     <table style="width: 100%; border-collapse: collapse;">
         <?php foreach ($data as $key => $value):
-            if (empty($value))
+            // Treat the string "0" as a valid value — don't drop it.
+            if (!isset($value) || $value === '')
                 continue;
             $label = ucwords(str_replace('_', ' ', $key));
             ?>
             <tr>
                 <td style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2; width: 30%;">
-                    <strong><?php echo esc_html($label); ?></strong></td>
+                    <strong><?php echo esc_html($label); ?></strong>
+                </td>
                 <td style="padding: 8px; border: 1px solid #ddd;"><?php echo nl_to_br(esc_html($value)); ?></td>
             </tr>
         <?php endforeach; ?>
