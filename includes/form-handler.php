@@ -1,22 +1,23 @@
 <?php
 /**
  * @package Living_Heritage_Forms
- *
- * Handles the submission of the registration form.
+ * Handles all form submissions.
  */
 
-// If this file is called directly, abort.
 if (!defined('WPINC')) {
     die;
 }
 
-/**
- * The main function to process the form submission.
- */
+// ====================================================================
+// THIS IS THE FIX:
+// We must explicitly include the email functions file so the functions
+// below can find and use it.
+require_once LHF_PLUGIN_DIR . 'includes/email.php';
+// ====================================================================
+
+
 function lhf_handle_form_submission()
 {
-
-    // 1. Verify the nonce for security
     if (!isset($_POST['lhf_nonce']) || !wp_verify_nonce($_POST['lhf_nonce'], 'lhf_registration_nonce')) {
         wp_die('Security check failed!', 'Error');
     }
@@ -24,8 +25,6 @@ function lhf_handle_form_submission()
     global $wpdb;
     $table_name = $wpdb->prefix . 'lh_form_submissions';
 
-    // 2. Define ALL expected fields from the form
-    // This is the robust way to ensure no 'NOT NULL' columns are missed.
     $expected_fields = [
         'child_first_name',
         'child_middle_name',
@@ -121,42 +120,24 @@ function lhf_handle_form_submission()
     ];
 
     $data = [];
-
-    // 3. Sanitize and prepare the data from the $_POST array
     foreach ($expected_fields as $field) {
         if (isset($_POST[$field])) {
-            if (is_array($_POST[$field])) {
-                $sanitized_array = array_map('sanitize_text_field', $_POST[$field]);
-                $data[$field] = implode(', ', $sanitized_array);
-            } else {
-                $data[$field] = sanitize_text_field($_POST[$field]);
-            }
+            $data[$field] = is_array($_POST[$field]) ? implode(', ', array_map('sanitize_text_field', $_POST[$field])) : sanitize_text_field($_POST[$field]);
         } else {
-            // If the field isn't in the POST data (e.g., unchecked checkbox), provide a default empty value.
             $data[$field] = '';
         }
     }
 
-    // Add submission date
     $data['submission_date'] = current_time('mysql');
+    $data['form_type'] = 'registration';
 
-    // 4. Insert the data into the database
-    $result = $wpdb->insert($table_name, $data); // We can omit the format array for simplicity, $wpdb->insert handles sanitization.
+    $result = $wpdb->insert($table_name, $data);
 
-    // 5. Redirect the user after submission, now with better error handling
     $redirect_url = wp_get_referer();
-
     if ($result === false) {
-        // Database insertion failed. Let's find out why.
-        // For debugging, you can uncomment the next line to see the error.
-        // wp_die( 'Database insert failed: ' . $wpdb->last_error ); 
-
         $redirect_url = add_query_arg('submission', 'error', $redirect_url);
     } else {
-        // Success!
-        require_once LHF_PLUGIN_DIR . 'includes/email.php';
-        lhf_send_admin_notification($data);
-
+        lhf_send_notification($data, 'registration');
         $redirect_url = add_query_arg('submission', 'success', $redirect_url);
     }
 
@@ -164,18 +145,8 @@ function lhf_handle_form_submission()
     exit;
 }
 
-// IMPORTANT: This hook MUST match the 'action' value in the hidden form field.
-add_action('admin_post_nopriv_submit_lh_registration', 'lhf_handle_form_submission');
-add_action('admin_post_submit_lh_registration', 'lhf_handle_form_submission');
-
-
-/**
- * The main function to process the PERMISSIONS form submission.
- */
 function lhf_handle_permissions_submission()
 {
-
-    // 1. Verify the nonce
     if (!isset($_POST['lhf_nonce']) || !wp_verify_nonce($_POST['lhf_nonce'], 'lhf_permissions_nonce')) {
         wp_die('Security check failed!', 'Error');
     }
@@ -183,9 +154,7 @@ function lhf_handle_permissions_submission()
     global $wpdb;
     $table_name = $wpdb->prefix . 'lh_form_submissions';
 
-    // 2. Define expected fields for THIS form
     $expected_fields = [
-        'form_type',
         'child_first_name',
         'child_surname',
         'p1_first_name',
@@ -211,17 +180,15 @@ function lhf_handle_permissions_submission()
     }
 
     $data['submission_date'] = current_time('mysql');
+    $data['form_type'] = 'permissions';
 
-    // 3. Insert the data
     $result = $wpdb->insert($table_name, $data);
 
-    // 4. Redirect
     $redirect_url = wp_get_referer();
     if ($result === false) {
         $redirect_url = add_query_arg('submission', 'error', $redirect_url);
     } else {
-        // You could create a new, separate email notification function for this if you wish
-        // lhf_send_permissions_notification( $data );
+        lhf_send_notification($data, 'permissions');
         $redirect_url = add_query_arg('submission', 'success', $redirect_url);
     }
 

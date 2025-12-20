@@ -1,16 +1,12 @@
 <?php
 /**
  * @package Living_Heritage_Forms
- *
- * This class creates the list table for viewing submissions.
  */
 
-// If this file is called directly, abort.
 if (!defined('WPINC')) {
     die;
 }
 
-// We need to extend the WP_List_Table class
 if (!class_exists('WP_List_Table')) {
     require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 }
@@ -18,48 +14,27 @@ if (!class_exists('WP_List_Table')) {
 class LHF_Submissions_List_Table extends WP_List_Table
 {
 
-
-
-    /**
-     * Prepare the items for the table to process
-     */
     public function prepare_items()
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'lh_form_submissions';
+        $this->_column_headers = [$this->get_columns(), $this->get_hidden_columns(), $this->get_sortable_columns()];
 
-        // Define our columns, hidden columns, and sortable columns
-        $columns = $this->get_columns();
-        $hidden = $this->get_hidden_columns();
-        $sortable = $this->get_sortable_columns();
-        $this->_column_headers = [$columns, $hidden, $sortable];
-
-        // Pagination parameters
         $per_page = 20;
         $current_page = $this->get_pagenum();
         $offset = ($current_page - 1) * $per_page;
 
-        // Order by logic (sorting)
         $orderby = isset($_GET['orderby']) ? sanitize_sql_orderby($_GET['orderby']) : 'submission_date';
         $order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'DESC';
 
-        // ====================================================================
-        // DYNAMIC FILTERING LOGIC STARTS HERE
-        // ====================================================================
-
         $where_clause = '';
-        // Get the form_type from the URL, if it exists
         $form_type = isset($_GET['form_type']) ? sanitize_key($_GET['form_type']) : '';
-
-        // If the form_type is one of our valid types, create a WHERE clause
         if (in_array($form_type, ['registration', 'permissions'])) {
             $where_clause = $wpdb->prepare("WHERE form_type = %s", $form_type);
         }
 
-        // Get the total number of items, respecting the filter
         $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $table_name $where_clause");
 
-        // Get the data from the database, respecting the filter, sorting, and pagination
         $this->items = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT id, form_type, submission_date, child_first_name, child_surname, p1_first_name, p1_surname, p1_email FROM $table_name $where_clause ORDER BY $orderby $order LIMIT %d OFFSET %d",
@@ -69,11 +44,6 @@ class LHF_Submissions_List_Table extends WP_List_Table
             ARRAY_A
         );
 
-        // ====================================================================
-        // DYNAMIC FILTERING LOGIC ENDS HERE
-        // ====================================================================
-
-        // Set pagination arguments
         $this->set_pagination_args([
             'total_items' => $total_items,
             'per_page' => $per_page,
@@ -81,105 +51,10 @@ class LHF_Submissions_List_Table extends WP_List_Table
         ]);
     }
 
-    /**
-     *  Define the columns that are going to be used in the table
-     * @return array $columns, the array of columns to use with the table
-     */
-    public function get_columns()
-    {
-        return [
-            'cb' => '<input type="checkbox" />', // For bulk actions
-            'child_name' => __('Child\'s Name', 'living-heritage-forms'),
-            'parent_name' => __('Parent\'s Name (P1)', 'living-heritage-forms'),
-            'parent_email' => __('Parent\'s Email (P1)', 'living-heritage-forms'),
-            'submission_date' => __('Submission Date', 'living-heritage-forms')
-        ];
-    }
-
-    /**
-     * Define which columns are hidden
-     * @return array
-     */
-    public function get_hidden_columns()
-    {
-        return [];
-    }
-
-    /**
-     * Define the sortable columns
-     * @return array
-     */
-    public function get_sortable_columns()
-    {
-        return [
-            'child_name' => ['child_first_name', false],
-            'submission_date' => ['submission_date', true] // True means it's sorted DESC by default
-        ];
-    }
-
-    /**
-     * Define what data to show on each column of the table
-     */
-    public function column_default($item, $column_name)
-    {
-        switch ($column_name) {
-            case 'submission_date':
-                return date('F j, Y, g:i a', strtotime($item[$column_name]));
-            default:
-                return print_r($item, true); // For debugging
-        }
-    }
-
-    /**
-     * Renders the 'child_name' column.
-     */
-    protected function column_child_name($item)
-    {
-        $full_name = esc_html($item['child_first_name']) . ' ' . esc_html($item['child_surname']);
-
-        // Add nonce to the delete link for security
-        $delete_nonce = wp_create_nonce('lhf_delete_submission_' . $item['id']);
-
-        $actions = [
-            'view' => sprintf('<a href="?page=%s&action=view&id=%s">View</a>', $_REQUEST['page'], $item['id']),
-            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s&_wpnonce=%s" style="color:#a00;" onclick="return confirm(\'Are you sure you want to delete this submission?\');">Delete</a>', $_REQUEST['page'], $item['id'], $delete_nonce),
-        ];
-        return $full_name . $this->row_actions($actions);
-    }
-
-    /**
-     * Renders the 'parent_name' column.
-     */
-    protected function column_parent_name($item)
-    {
-        return esc_html($item['p1_first_name']) . ' ' . esc_html($item['p1_surname']);
-    }
-
-    /**
-     * Renders the 'parent_email' column with a mailto link.
-     */
-    protected function column_parent_email($item)
-    {
-        $email = esc_attr($item['p1_email']);
-        return "<a href='mailto:{$email}'>{$email}</a>";
-    }
-
-    /**
-     * Renders the checkbox column.
-     */
-    protected function column_cb($item)
-    {
-        return sprintf('<input type="checkbox" name="submission[]" value="%s" />', $item['id']);
-    }
-
-    /**
-     * Displays the filter views (All, Registrations, Permissions).
-     */
     protected function get_views()
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'lh_form_submissions';
-
         $current = isset($_GET['form_type']) ? $_GET['form_type'] : '';
 
         $total_count = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
@@ -189,28 +64,72 @@ class LHF_Submissions_List_Table extends WP_List_Table
         $base_url = admin_url('admin.php?page=lhf-submissions');
 
         $views = [
-            'all' => sprintf(
-                '<a href="%s" class="%s">All <span class="count">(%d)</span></a>',
-                $base_url,
-                $current === '' ? 'current' : '',
-                $total_count
-            ),
-            'registration' => sprintf(
-                '<a href="%s" class="%s">Full Registrations <span class="count">(%d)</span></a>',
-                add_query_arg('form_type', 'registration', $base_url),
-                $current === 'registration' ? 'current' : '',
-                $reg_count
-            ),
-            'permissions' => sprintf(
-                '<a href="%s" class="%s">Permissions Forms <span class="count">(%d)</span></a>',
-                add_query_arg('form_type', 'permissions', $base_url),
-                $current === 'permissions' ? 'current' : '',
-                $perm_count
-            ),
+            'all' => sprintf('<a href="%s" class="%s">All <span class="count">(%d)</span></a>', esc_url($base_url), $current === '' ? 'current' : '', $total_count),
+            'registration' => sprintf('<a href="%s" class="%s">Full Registrations <span class="count">(%d)</span></a>', esc_url(add_query_arg('form_type', 'registration', $base_url)), $current === 'registration' ? 'current' : '', $reg_count),
+            'permissions' => sprintf('<a href="%s" class="%s">Permissions Forms <span class="count">(%d)</span></a>', esc_url(add_query_arg('form_type', 'permissions', $base_url)), $current === 'permissions' ? 'current' : '', $perm_count)
         ];
 
         return $views;
     }
 
+    public function get_columns()
+    {
+        return ['cb' => '<input type="checkbox" />', 'child_name' => 'Child\'s Name', 'parent_name' => 'Parent\'s Name (P1)', 'parent_email' => 'Parent\'s Email (P1)', 'submission_date' => 'Submission Date'];
+    }
 
+    // ====================================================================
+    // THIS IS THE FIX: This function MUST return an array.
+    public function get_hidden_columns()
+    {
+        return [];
+    }
+    // ====================================================================
+
+    public function get_sortable_columns()
+    {
+        return ['child_name' => ['child_first_name', false], 'submission_date' => ['submission_date', true]];
+    }
+
+    // ====================================================================
+    // THIS IS THE SECOND FIX: A default case is required.
+    public function column_default($item, $column_name)
+    {
+        switch ($column_name) {
+            default:
+                return isset($item[$column_name]) ? esc_html($item[$column_name]) : 'N/A';
+        }
+    }
+    // ====================================================================
+
+    protected function column_submission_date($item)
+    {
+        return date('F j, Y, g:i a', strtotime($item['submission_date']));
+    }
+
+    protected function column_child_name($item)
+    {
+        $full_name = esc_html($item['child_first_name']) . ' ' . esc_html($item['child_surname']);
+        $delete_nonce = wp_create_nonce('lhf_delete_submission_' . $item['id']);
+        $actions = [
+            'view' => sprintf('<a href="?page=%s&action=view&id=%s">View</a>', $_REQUEST['page'], $item['id']),
+            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s&_wpnonce=%s" style="color:#a00;" onclick="return confirm(\'Are you sure?\');">Delete</a>', $_REQUEST['page'], $item['id'], $delete_nonce)
+        ];
+        return $full_name . $this->row_actions($actions);
+    }
+
+    protected function column_parent_name($item)
+    {
+        return esc_html($item['p1_first_name']) . ' ' . esc_html($item['p1_surname']);
+    }
+
+    protected function column_parent_email($item)
+    {
+        $email = esc_attr($item['p1_email']);
+        return "<a href='mailto:{$email}'>{$email}</a>";
+    }
+
+    protected function column_cb($item)
+    {
+        return sprintf('<input type="checkbox" name="submission[]" value="%s" />', $item['id']);
+    }
 }

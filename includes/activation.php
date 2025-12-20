@@ -17,13 +17,10 @@ function lhf_create_database_table()
     $table_name = $wpdb->prefix . 'lh_form_submissions';
     $charset_collate = $wpdb->get_charset_collate();
 
-    // SQL statement to create the table
     $sql = "CREATE TABLE $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         form_type varchar(50) DEFAULT 'registration' NOT NULL,
         submission_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-        
-        -- Child's Details
         child_first_name varchar(100) NOT NULL,
         child_middle_name varchar(100) DEFAULT '' NOT NULL,
         child_surname varchar(100) NOT NULL,
@@ -36,8 +33,6 @@ function lhf_create_database_table()
         child_street varchar(255) NOT NULL,
         child_town_city varchar(100) NOT NULL,
         child_postcode varchar(20) NOT NULL,
-        
-        -- Parent 1 Details
         p1_first_name varchar(100) NOT NULL,
         p1_middle_name varchar(100) DEFAULT '' NOT NULL,
         p1_surname varchar(100) NOT NULL,
@@ -54,8 +49,6 @@ function lhf_create_database_table()
         p1_place_of_work varchar(255) NOT NULL,
         p1_occupation varchar(100) NOT NULL,
         p1_insurance_number varchar(50) NOT NULL,
-
-        -- Parent 2 Details
         p2_first_name varchar(100) NOT NULL,
         p2_middle_name varchar(100) DEFAULT '' NOT NULL,
         p2_surname varchar(100) NOT NULL,
@@ -71,36 +64,26 @@ function lhf_create_database_table()
         p2_place_of_work varchar(255) NOT NULL,
         p2_occupation varchar(100) NOT NULL,
         p2_insurance_number varchar(50) NOT NULL,
-
-        -- Additional/Emergency Info
         other_contacts_parental text DEFAULT '' NOT NULL,
         emergency_contacts text NOT NULL,
         authorized_pickup text NOT NULL,
         people_in_household text DEFAULT '' NOT NULL,
-
-        -- Further Details
         languages_spoken varchar(255) NOT NULL,
         child_position_family varchar(100) NOT NULL,
         other_siblings_home text DEFAULT '' NOT NULL,
         siblings_details text DEFAULT '' NOT NULL,
         additional_info text DEFAULT '' NOT NULL,
         pickup_password varchar(100) NOT NULL,
-
-        -- Preferences & Funding
         preferred_start_date date DEFAULT '0000-00-00' NOT NULL,
         preferred_session varchar(50) NOT NULL,
         additional_hours varchar(255) DEFAULT '' NOT NULL,
         preferred_days text NOT NULL,
         funding_eligibility varchar(50) NOT NULL,
-        
-        -- Child Development
         attended_nursery_before tinyint(1) NOT NULL,
         attended_nursery_details text DEFAULT '' NOT NULL,
         special_needs tinyint(1) NOT NULL,
         special_needs_details text DEFAULT '' NOT NULL,
         additional_support text DEFAULT '' NOT NULL,
-
-        -- Medical & Health
         doctor_name varchar(255) DEFAULT '' NOT NULL,
         health_visitor_name varchar(255) DEFAULT '' NOT NULL,
         health_visitor_phone varchar(20) DEFAULT '' NOT NULL,
@@ -116,8 +99,6 @@ function lhf_create_database_table()
         prescribed_medication tinyint(1) NOT NULL,
         prescribed_medication_details text DEFAULT '' NOT NULL,
         dietary_restrictions text NOT NULL,
-        
-        -- Agreements & Permissions
         agree_emergency_contact tinyint(1) NOT NULL,
         agree_policies tinyint(1) NOT NULL,
         agree_activities tinyint(1) NOT NULL,
@@ -131,7 +112,6 @@ function lhf_create_database_table()
         agree_privacy_notice tinyint(1) NOT NULL,
         agree_terms tinyint(1) NOT NULL,
         confirm_accuracy tinyint(1) NOT NULL,
-
         PRIMARY KEY  (id)
     ) $charset_collate;";
 
